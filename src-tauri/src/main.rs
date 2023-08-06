@@ -1,16 +1,25 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::str::FromStr;
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 async fn download(url: &str) -> Result<String, String> {
-    let path_to_video = rustube::download_best_quality(url).await.unwrap();
-    println!("downloaded: {} to {:?}", url, path_to_video);
-    if path_to_video.is_file() {
-        println!("here");
-        return Ok(format!("downloaded: {} to {:?}", url, path_to_video));
-    }
-    return Err(format!("failed to download: {}", url));
+    let path = tauri::api::path::download_dir().unwrap();
+
+    let url = rustube::url::Url::from_str(url).unwrap();
+
+    let video = rustube::Video::from_url(&url)
+        .await
+        .unwrap()
+        .best_audio()
+        .unwrap()
+        .download_to_dir(path)
+        .await
+        .unwrap();
+
+    return Ok(format!("Downloaded video: {:?}", video));
 }
 
 fn main() {
