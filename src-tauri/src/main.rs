@@ -7,17 +7,20 @@ use std::str::FromStr;
 #[tauri::command]
 async fn download(url: &str) -> Result<String, String> {
     let path = tauri::api::path::download_dir().unwrap();
+    println!("Download path: {:?}", path);
 
     let url = rustube::url::Url::from_str(url).unwrap();
+    println!("URL: {:?}", url);
 
     let video = rustube::Video::from_url(&url)
         .await
         .unwrap()
-        .best_audio()
+        .best_quality()
         .unwrap()
         .download_to_dir(path)
         .await
         .unwrap();
+      println!("Downloaded video: {:?}", video);
 
     return Ok(format!("Downloaded video: {:?}", video));
 }
