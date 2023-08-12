@@ -33,7 +33,6 @@ export default function App() {
         }}
       >
         <input
-          className=""
           id="url"
           name="url"
           type="url"
